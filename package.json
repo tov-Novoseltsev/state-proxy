@@ -1,0 +1,36 @@
+{
+  "name": "state-proxy",
+  "version": "0.0.1",
+  "description": "Provides useful wrappers for your application's state",
+  "main": "src/StateProxy.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tov-Novoseltsev/state-proxy"
+  },
+  "keywords": [
+    "Application state management",
+    "Rapid application development"
+  ],
+  "author": "Maxim Novoseltsev",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tov-Novoseltsev/state-proxy/issues"
+  },
+  "homepage": "https://github.com/tov-Novoseltsev/state-proxy",
+  "devDependencies": {
+    "del": "^1.1.1",
+    "gulp": "^3.8.11",
+    "jasmine-core": "^2.3.4",
+    "jshint": "^2.7.0",
+    "jshint-loader": "^0.8.3",
+    "karma": "^0.13.3",
+    "karma-chrome-launcher": "^0.2.0",
+    "karma-jasmine": "^0.3.6",
+    "karma-phantomjs-launcher": "^0.2.0",
+    "karma-webpack": "^1.7.0",
+    "minimist": "^1.1.1",
+    "node-libs-browser": "^0.5.0",
+    "phantomjs": "^1.9.17",
+    "webpack": "^1.9.7"
+  }
+}
