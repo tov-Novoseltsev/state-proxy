@@ -1,6 +1,14 @@
 language: node_js
 node_js:
-  - "5"
+- '5'
 before_script:
-  - npm install -g gulp
+- npm install -g gulp
 script: gulp --release
+deploy:
+  provider: npm
+  email: maxim.novoseltsev.public@gmail.com
+  api_key:
+    secure: a2Mo5HIJN0RNgGAC8enRaHFt0g4ZmJPmeTta4RSjG3YiD9QNGrzBTNjskJFGmDHV/La+uWMq6C/zQnNY20mdNeJHj+WaZT8NmW7GglqM3HwfgzFt2Wc7v8IYE8i0kQINZRemUENBgFYTfbR+OciMQLEbrEJ80mlgYJhrmzvmywWOmsEhaI0W6wHp6wPePpSNtLIzhxw+ZB5mzq0mXhkiuIpGFoBuCadNc7cycCISsKD9zxJVmOGSq8HrekqROqDj9hfC3bw2cUs1yg4s4XGP0xJasiXtHBK/Yae2qh1HNU9xYvwTK7XE3dn4MpoLWj0nVG2d+tWV/6aFnybl84e6lvVb5KuGY2yyOdyenZNoljZ0Kv5M2VbNmQGCwLe3k5A7F3WDpy3lbenGWyS/mqoVrq8JYzDsr3U+6ASKlVPnouqLIvmS1FRaVfPUl1XU+8HN1RRx5nz9wz5VKebgGJOyCvw/+AIlgfvQZUw1/NlRSjyyEg3bgZKRH5bnaUB51LMgLjWHl7IN1pN4HuWHDh5qtuUtXBhasUUY92O0FcUXqs2Zh7FOlGzjgzypTxgALwqUEEzyBQMwAOdAV0SFoFGMcHwCTUovKiP/xS1x6fPr9eRgl0Mkpqk6Cl9huKZGPXTKDc5KzZROGTb2Lr6bR7kCyYCRryAPZJhZxb4s6Y9kKbs=
+  on:
+    tags: true
+    repo: tov-Novoseltsev/state-proxy
