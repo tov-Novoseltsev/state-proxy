@@ -68,7 +68,8 @@ function defineCommons(proxyNode, options) {
 
     var val = proxyNode.val();
     var state = proxyNode.getState();
-    if((state.isNotVirgin || ignoreVirgin) && (_.isUndefined(val) || val === null || val === '') && proxyNode.required()) {
+    var isEmpty = typeof(val) === 'undefined' || val === null || val === '';
+    if((state.isNotVirgin || ignoreVirgin) && isEmpty && proxyNode.required()) {
       retval.isValid = false;
       //retval.requiredValidationViolated = true;
       retval.validationMessage = 'Required field';
