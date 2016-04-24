@@ -50,7 +50,7 @@ function objectBehavior(options) {
     var state = options.getState();
     var retval = Object.assign({}, state);
 
-    if(typeof(otherOverrides) !== 'undefined') {
+    if(typeof(valOverrides) !== 'undefined' || typeof(otherOverrides) !== 'undefined') {
       Object.assign(retval, otherOverrides, { val: state.val });
 
       var valState = Object.create(null);
