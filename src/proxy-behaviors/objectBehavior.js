@@ -4,7 +4,8 @@ function constructSubOptions(propertyName, options) {
   var retval = Object.create(null);
   retval.schemaNode = options.schemaNode.properties[propertyName];
   retval.getState = function getState() {
-    return options.getState().val[propertyName];
+    var state = options.getState() || { val: {} };
+    return state.val[propertyName];
   };
   retval.getState.getParentState = options.getState;
   retval.setState = function setState(newVal) {
@@ -47,7 +48,7 @@ function objectBehavior(options) {
   };
 
   proxyNode.getState = function getState(valOverrides, otherOverrides) {
-    var state = options.getState();
+    var state = options.getState() || { val: {} };
     var retval = Object.assign({}, state);
 
     if(typeof(valOverrides) !== 'undefined' || typeof(otherOverrides) !== 'undefined') {
