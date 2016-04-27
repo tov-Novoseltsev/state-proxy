@@ -37,6 +37,7 @@ function constructProxyItem(options, itemState) {
 
 function listBehavior(options) {
   var proxyNode = Object.create(null);
+  var idPropertyName = options.schemaNode.idPropertyName || 'id';
 
   proxyNode.getItems = function getItems(start, length) {
     var state = options.getState();
@@ -54,12 +55,31 @@ function listBehavior(options) {
     return {val:[]};
   };
 
+  proxyNode.getState = function getState() {
+    return options.getState();
+  };
+
   proxyNode.val = function val(newVal) {
     if(typeof(newVal) === 'undefined') {
       return proxyNode.getItems().map(function(itemProxy) {
         return itemProxy.val();
       });
     }
+
+    var itemProxies = proxyNode.getItems();
+
+    var newStateVal = newVal.map(function(item) {
+      var proxyItem = find(itemProxies, function(x) {
+        return x.getState()[idPropertyName] === item[idPropertyName];
+      });
+      if(typeof(proxyItem) === 'undefined') {
+        proxyItem = constructProxyItem(options, item);
+      }
+
+      return proxyItem.getState(item);
+    });
+
+    options.setState({ val: newStateVal });
   };
 
   proxyNode.addItem = function addItem(item) {
