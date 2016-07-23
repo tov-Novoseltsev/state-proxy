@@ -110,6 +110,11 @@ function objectBehavior(options) {
     options.setState(state);
   };
 
+  proxyNode.resetToDefault = function resetToDefault() {
+    var state = proxyNode.getDefaultState();
+    options.setState(state);
+  };
+
   return proxyNode;
 }
 

@@ -92,6 +92,11 @@ function defineCommons(proxyNode, options) {
     var state = proxyNode.getState(undefined, { hasChanges: true });
     options.setState(state);
   };
+
+  proxyNode.resetToDefault = function resetToDefault() {
+    var state = proxyNode.getDefaultState();
+    options.setState(state);
+  };
 }
 
 module.exports = defineCommons;
