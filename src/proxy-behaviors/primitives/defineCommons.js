@@ -33,7 +33,7 @@ function defineCommons(proxyNode, options) {
     }
 
     var state = proxyNode.getState(newVal);
-    state.isNotVirgin = true;
+    state.hasChanges = true;
     options.setState(state);
   };
 
@@ -63,13 +63,13 @@ function defineCommons(proxyNode, options) {
     }
   };
 
-  proxyNode.validate = function validate(ignoreVirgin) {
+  proxyNode.validate = function validate(ignoreChanges) {
     var retval = { isValid: true, validationMessage: '' };
 
     var val = proxyNode.val();
     var state = proxyNode.getState();
     var isEmpty = typeof(val) === 'undefined' || val === null || val === '';
-    if((state.isNotVirgin || ignoreVirgin) && isEmpty && proxyNode.required()) {
+    if((state.hasChanges || ignoreChanges) && isEmpty && proxyNode.required()) {
       retval.isValid = false;
       //retval.requiredValidationViolated = true;
       retval.validationMessage = 'Required field';
@@ -89,7 +89,7 @@ function defineCommons(proxyNode, options) {
   };
 
   proxyNode.exposeRequiredErrors = function exposeRequiredErrors() {
-    var state = proxyNode.getState(undefined, { isNotVirgin: true });
+    var state = proxyNode.getState(undefined, { hasChanges: true });
     options.setState(state);
   };
 }

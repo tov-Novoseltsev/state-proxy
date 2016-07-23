@@ -86,7 +86,7 @@ function objectBehavior(options) {
     }
 
     var state = proxyNode.getState(newVal);
-    state.isNotVirgin = true;
+    state.hasChanges = true;
     options.setState(state);
   };
 
@@ -106,7 +106,7 @@ function objectBehavior(options) {
   };
 
   proxyNode.exposeRequiredErrors = function exposeRequiredErrors() {
-    var state = proxyNode.getState(undefined, { isNotVirgin: true });
+    var state = proxyNode.getState(undefined, { hasChanges: true });
     options.setState(state);
   };
 
