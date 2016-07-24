@@ -65,7 +65,10 @@ function defineCommons(proxyNode, options) {
 
   proxyNode.validate = function validate(ignoreChanges) {
     var retval = { isValid: true, validationMessage: '' };
-
+    if(proxyNode.ignored()) {
+      return retval;
+    }
+    
     var val = proxyNode.val();
     var state = proxyNode.getState();
     var isEmpty = typeof(val) === 'undefined' || val === null || val === '';
