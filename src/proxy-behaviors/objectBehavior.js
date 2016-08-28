@@ -90,12 +90,12 @@ function objectBehavior(options) {
     options.setState(state);
   };
 
-  proxyNode.validate = function validate(ignoreVirgin) {
+  proxyNode.validate = function validate(ignoreChanges) {
     var retval = { isValid: true, validationMessage: '' };
 
     for(var i=0; i < propertyNames.length; i++) {
       var propName = propertyNames[i];
-      var isValid = proxyNode.properties[propName].validate(ignoreVirgin).isValid;
+      var isValid = proxyNode.properties[propName].validate(ignoreChanges).isValid;
       if(!isValid) {
         retval.isValid = false;
         break;

@@ -27,7 +27,16 @@ function create(schemaNode, getState, setState) {
   return provideDefaultStateStorage(proxyNode, options);
 }
 
+function formValidationResult(condition, validationMessage) {
+  var retval = { isValid: condition, validationMessage: '' };
+  if(!condition) {
+    retval.validationMessage = validationMessage;
+  }
+  return retval;
+}
+
 module.exports = {
   create: create,
+  formValidationResult: formValidationResult,
   SchemaTypes: require('./SchemaTypes')
 };
