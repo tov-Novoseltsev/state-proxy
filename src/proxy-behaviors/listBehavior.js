@@ -14,12 +14,12 @@ function constructProxyItem(options, itemState) {
   var subOptions = Object.create(null);
 
   var idPropertyName = options.schemaNode.idPropertyName || 'id';
-  var id = itemState[idPropertyName].val;
+  var id = itemState[idPropertyName];
 
   subOptions.schemaNode = options.schemaNode.listItem;
   subOptions.getState = function getState() {
     var state = options.getState();
-    return find(state.val, function(item) { return item.val[idPropertyName].val == id; });
+    return find(state.val, function(item) { return item.val[idPropertyName] == id; });
   };
   subOptions.getState.getParentState = options.getState;
 
@@ -60,13 +60,13 @@ function listBehavior(options) {
   };
 
   proxyNode.val = function val(newVal) {
+    var itemProxies = proxyNode.getItems();
+
     if(typeof(newVal) === 'undefined') {
-      return proxyNode.getItems().map(function(itemProxy) {
+      return itemProxies.map(function(itemProxy) {
         return itemProxy.val();
       });
     }
-
-    var itemProxies = proxyNode.getItems();
 
     var newStateVal = newVal.map(function(item) {
       var proxyItem = find(itemProxies, function(x) {
@@ -91,7 +91,11 @@ function listBehavior(options) {
     options.setState(state);
   };
 
-  proxyNode.validate = function validate() {
+  proxyNode.validate = function validate(ignoreChanges) {
+    var retval = { isValid: true, validationMessage: '' };
+    var itemProxies = proxyNode.getItems();
+    // todo: implement validation
+    return retval;
   };
 
   return proxyNode;
