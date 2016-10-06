@@ -1,4 +1,4 @@
-var executeBehavior = require('./proxy-behaviors/executeBehavior');
+var behaviorSelector = require('./proxy-behaviors/behaviorSelector');
 
 function provideDefaultStateStorage(proxyNode, options) {
   var internalState = {};
@@ -17,14 +17,22 @@ function provideDefaultStateStorage(proxyNode, options) {
 }
 
 function create(schemaNode, getState, setState) {
-  var options = {
+  var rootOptions = {
     schemaNode: schemaNode,
     getState: getState,
     setState: setState
   };
 
-  var proxyNode = executeBehavior(options);
-  return provideDefaultStateStorage(proxyNode, options);
+  var rootProxy = behaviorSelector.create(rootOptions);
+  rootProxy.getData = function getData() {
+    return behaviorSelector.deconstructState(schemaNode, getState);
+  };
+
+  rootProxy.setData = function setData(data) {
+    setState(behaviorSelector.constructState(schemaNode, getState(), data));
+  };
+
+  return provideDefaultStateStorage(rootProxy, rootOptions);
 }
 
 function formValidationResult(condition, validationMessage) {

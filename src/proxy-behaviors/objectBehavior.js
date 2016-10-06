@@ -1,4 +1,74 @@
-var executeBehavior = require('./executeBehavior');
+var behaviorSelector = require('./behaviorSelector');
+
+function forEachProperty(propertiesDefinitionObject, func) {
+  var propertyNames = [];
+  if(propertiesDefinitionObject) {
+    propertyNames = Object.keys(propertiesDefinitionObject);
+  }
+  for(var i=0; i < propertyNames.length; i++) {
+    if(func(propertyNames[i], i) === true) {
+      break;
+    }
+  }
+}
+
+function getDefaultState(schema) {
+  var defaultState = { val: Object.create(null) };
+
+  forEachProperty(schema.properties, function(prop) {
+    var childSchema = schema.properties[prop];
+    defaultState.val[prop] = behaviorSelector.getDefaultState(childSchema);
+  });
+
+  return defaultState;
+}
+
+function constructState(schema, stateArg, valOverride, otherOverrides) {
+  var state = stateArg || getDefaultState(schema);
+  var retval = Object.assign({}, state);
+
+  if(typeof(valOverride) !== 'undefined' || typeof(otherOverrides) !== 'undefined') {
+    var val = valOverride;
+    if(typeof(schema.setDataTransform) === 'function' && typeof(valOverride) !== 'undefined') {
+      val = schema.setDataTransform(valOverride);
+    }
+
+    Object.assign(retval, otherOverrides, { val: state.val });
+
+    var valState = Object.create(null);
+    forEachProperty(schema.properties, function(prop) {
+      var childValOverride = typeof(val) !== 'undefined' ?
+        val[prop] : undefined;
+      var childSchema = schema.properties[prop];
+      var childState = state.val[prop];
+      valState[prop] = behaviorSelector.constructState(childSchema, childState,
+        childValOverride, otherOverrides);
+    });
+
+    Object.assign(retval, { val: valState });
+  }
+
+  return retval;
+}
+
+function deconstructState(schema, getState) {
+  var retval = Object.create(null);
+
+  forEachProperty(schema.properties, function(prop) {
+    var childSchema = schema.properties[prop];
+    var childGetState = function () {
+      return getState().val[prop];
+    };
+    childGetState.getParentState = getState;
+    retval[prop] = behaviorSelector.deconstructState(childSchema, childGetState);
+  });
+
+  if(typeof (schema.getDataTransform) === 'function') {
+    retval = schema.getDataTransform(retval);
+  }
+
+  return retval;
+}
 
 function constructSubOptions(propertyName, options) {
   var retval = Object.create(null);
@@ -16,56 +86,25 @@ function constructSubOptions(propertyName, options) {
   return retval;
 }
 
-function constructProxyProperties(propertyNames, options) {
+function constructProxyProperties(options) {
   var retval = Object.create(null);
-  for(var i=0; i < propertyNames.length; i++) {
-    var propName = propertyNames[i];
-    var subOptions = constructSubOptions(propName, options);
-    retval[propName] = executeBehavior(subOptions);
-  }
+  forEachProperty(options.schemaNode.properties, function(prop) {
+    var subOptions = constructSubOptions(prop, options);
+    retval[prop] = behaviorSelector.create(subOptions);
+  });
   return retval;
 }
 
-function objectBehavior(options) {
+function createObjectProxy(options) {
   var proxyNode = Object.create(null);
 
-  var propertyNames = [];
-  if(options.schemaNode.properties) {
-    propertyNames = Object.keys(options.schemaNode.properties);
-  }
+  proxyNode.properties = constructProxyProperties(options);
 
-  proxyNode.properties = constructProxyProperties(propertyNames, options);
+  proxyNode.getDefaultState = getDefaultState.bind(null, options.schemaNode);
 
-  proxyNode.getDefaultState = function getDefaultState() {
-    var defaultState = { val: Object.create(null) };
-
-    for(var i=0; i < propertyNames.length; i++) {
-      var propName = propertyNames[i];
-      defaultState.val[propName] = proxyNode.properties[propName].getDefaultState();
-    }
-
-    return defaultState;
-  };
-
-  proxyNode.getState = function getState(valOverrides, otherOverrides) {
-    var state = options.getState() || { val: {} };
-    var retval = Object.assign({}, state);
-
-    if(typeof(valOverrides) !== 'undefined' || typeof(otherOverrides) !== 'undefined') {
-      Object.assign(retval, otherOverrides, { val: state.val });
-
-      var valState = Object.create(null);
-      for(var i=0; i < propertyNames.length; i++) {
-        var propName = propertyNames[i];
-        var childValOverride = typeof(valOverrides) !== 'undefined' ?
-          valOverrides[propName] : undefined;
-        valState[propName] = proxyNode.properties[propName].getState(childValOverride, otherOverrides);
-      }
-
-      Object.assign(retval, { val: valState });
-    }
-
-    return retval;
+  proxyNode.getState = function getState(valOverride, otherOverrides) {
+    var state = options.getState();
+    return constructState(options.schemaNode, state, valOverride, otherOverrides);
   };
 
   proxyNode.val = function val(newVal) {
@@ -78,14 +117,14 @@ function objectBehavior(options) {
 
     if(typeof(newVal) === 'undefined') {
       var retval = Object.create(null);
-      for(var i=0; i < propertyNames.length; i++) {
-        var propName = propertyNames[i];
-        retval[propName] = proxyNode.properties[propName].val();
-      }
+      forEachProperty(options.schemaNode.properties, function(prop) {
+        retval[prop] = proxyNode.properties[prop].val();
+      });
       return retval;
     }
 
     var state = proxyNode.getState(newVal);
+
     state.hasChanges = true;
     options.setState(state);
   };
@@ -93,14 +132,15 @@ function objectBehavior(options) {
   proxyNode.validate = function validate(ignoreChanges) {
     var retval = { isValid: true, validationMessage: '' };
 
-    for(var i=0; i < propertyNames.length; i++) {
-      var propName = propertyNames[i];
-      var isValid = proxyNode.properties[propName].validate(ignoreChanges).isValid;
-      if(!isValid) {
+    forEachProperty(options.schemaNode.properties, function(prop) {
+      var validationResult = proxyNode.properties[prop].validate(ignoreChanges);
+      if(!validationResult.isValid) {
+        retval.invalidPropertyName = prop;
+        retval.invalidPropertyResult = validationResult;
         retval.isValid = false;
-        break;
+        return true;
       }
-    }
+    });
 
     return retval;
   };
@@ -118,4 +158,9 @@ function objectBehavior(options) {
   return proxyNode;
 }
 
-module.exports = objectBehavior;
+module.exports = {
+  getDefaultState: getDefaultState,
+  constructState: constructState,
+  deconstructState: deconstructState,
+  create: createObjectProxy
+};

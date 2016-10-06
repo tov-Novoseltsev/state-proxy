@@ -108,7 +108,6 @@ describe('StateProxy', function() {
         expect(person.val).toBeDefined();
         expect(person.validate).toBeDefined();
         expect(person.getState).toBeDefined();
-        expect(person.getDefaultState).toBeDefined();
         expect(person.properties).toBeDefined();
         expect(person.properties.FirstName).toBeDefined();
         expect(person.properties.LastName).toBeDefined();

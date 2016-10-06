@@ -1,17 +1,17 @@
 'use strict';
 
-var executeBehavior = require('./executeBehavior');
+var behaviorSelector = require('./behaviorSelector');
 
-describe('executeBehavior', function() {
+describe('behaviorSelector', function() {
   it('should generate proxyNode in case type was not provided (dynamic type)', function() {
     var schema = {};
-    var proxyNode = executeBehavior({ schemaNode: schema });
+    var proxyNode = behaviorSelector.create({ schemaNode: schema });
     expect(proxyNode).toBeDefined();
   });
 
   it('should expose the schema to proxyNode', function() {
     var schema = {}; // dynamic type
-    var proxyNode = executeBehavior({ schemaNode: schema });
+    var proxyNode = behaviorSelector.create({ schemaNode: schema });
     expect(proxyNode.schema).toBe(schema);
   });
 
@@ -19,7 +19,8 @@ describe('executeBehavior', function() {
     var schema = {
       type: 'FooBar'
     };
-    expect(function() { executeBehavior({ schemaNode: schema }); })
-      .toThrow(new Error('ERROR: StateProxy encountered unrecognized schema type: FooBar'));
+    expect(function() {
+      behaviorSelector.create({ schemaNode: schema });
+    }).toThrow(new Error('ERROR: StateProxy encountered unrecognized schema type: FooBar'));
   });
 });

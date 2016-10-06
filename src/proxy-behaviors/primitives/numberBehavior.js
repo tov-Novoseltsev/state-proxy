@@ -1,11 +1,3 @@
-var defineCommons = require('./defineCommons');
+var dynamicBehavior = require('./dynamicBehavior');
 
-function numberBehavior(options) {
-  var proxyNode = Object.create(null);
-
-  defineCommons(proxyNode, options);
-
-  return proxyNode;
-}
-
-module.exports = numberBehavior;
+module.exports = dynamicBehavior;
