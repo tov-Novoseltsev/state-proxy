@@ -52,30 +52,19 @@ function deconstructState(schema, getState) {
   return retval;
 }
 
-function constructProxyItem(options, itemState) {
+function constructProxyItem(options, itemState, index) {
   var subOptions = Object.create(null);
-
-  var idPropertyName = options.schemaNode.idPropertyName || 'id';
-  var id = itemState.val[idPropertyName];
-  // if(options.schemaNode.listItem.type === 'object') {
-  //   id = itemState[idPropertyName];
-  // } else {
-  //   // todo: support other types
-  // }
 
   subOptions.schemaNode = options.schemaNode.listItem;
   subOptions.getState = function getState() {
     var state = options.getState();
-    return find(state.val, function(item) { return item.val[idPropertyName] == id; });
+    return state.val[index];
   };
   subOptions.getState.getParentState = options.getState;
 
   subOptions.setState = function setState(newVal) {
     var state = options.getState();
-    var updatedVal = state.val.map(function(item) {
-      return item.val[idPropertyName].val === id ? newVal : item;
-    });
-    state.val = updatedVal;
+  state.val[index] = newVal;
     return options.setState(state);
   };
 
@@ -87,8 +76,8 @@ function createListProxy(options) {
 
   proxyNode.getItems = function getItems(start, length) {
     var state = options.getState();
-    var retval = state.val.map(function (item) {
-      return constructProxyItem(options, item);
+    var retval = state.val.map(function (item, index) {
+      return constructProxyItem(options, item, index);
     });
     return retval;
   };
@@ -126,14 +115,14 @@ function createListProxy(options) {
     options.setState({ val: newStateVal });
   };
 
-  proxyNode.addItem = function addItem(item) {
-    var state = options.getState();
-
-    var proxyItem = constructProxyItem(options, item);
-    var newItemState = proxyItem.getState(item);
-    state.val.push(newItemState);
-    options.setState(state);
-  };
+  // proxyNode.addItem = function addItem(item) {
+  //   var state = options.getState();
+  //
+  //   var proxyItem = constructProxyItem(options, item);
+  //   var newItemState = proxyItem.getState(item);
+  //   state.val.push(newItemState);
+  //   options.setState(state);
+  // };
 
   proxyNode.validate = function validate(ignoreChanges) {
     var retval = { isValid: true, validationMessage: '' };
