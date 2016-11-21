@@ -12,10 +12,14 @@ function constructState(schema, state, valOverride, otherOverrides) {
     Object.assign(retval, otherOverrides, { val: s.val });
   }
 
-  if(typeof(valOverride) !== 'undefined'
-    /* I realize that val() may return a value different from state, this is for the sake
-    of flexibility // && typeof(schema.val) === 'undefined'*/) {
-    Object.assign(retval, { val: valOverride });
+  if(typeof(valOverride) !== 'undefined') {
+    var val = valOverride;
+
+    if(typeof(schema.setDataTransform) === 'function') {
+      val = schema.setDataTransform(valOverride);
+    }
+
+    Object.assign(retval, { val: val });
   }
 
   return retval;
