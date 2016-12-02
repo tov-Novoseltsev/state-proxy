@@ -30,7 +30,7 @@ function constructState(schema, state, valOverride, otherOverrides) {
     var newStateWithOtherOverrides = retval.val.map(function(subState) {
       return behaviorSelector.constructState(schema.listItem, subState, undefined, otherOverrides);
     });
-    Object.assign(retval, { val: newStateWithOtherOverrides });
+    Object.assign(retval, otherOverrides, { val: newStateWithOtherOverrides });
   }
 
   return retval;
@@ -115,25 +115,60 @@ function createListProxy(options) {
     options.setState({ val: newStateVal });
   };
 
-  // proxyNode.addItem = function addItem(item) {
-  //   var state = options.getState();
-  //
-  //   var proxyItem = constructProxyItem(options, item);
-  //   var newItemState = proxyItem.getState(item);
-  //   state.val.push(newItemState);
-  //   options.setState(state);
-  // };
+   //proxyNode.addItem = function addItem(item) {
+   //  var state = options.getState();
+
+   //  var proxyItem = constructProxyItem(options, item);
+   //  var newItemState = proxyItem.getState(item);
+   //  state.val.push(newItemState);
+   //  options.setState(state);
+   //};
+
+  proxyNode.ignored = function ignored() {
+    var ignoredDefinition = options.schemaNode.ignored;
+    if(typeof(ignoredDefinition) === 'undefined') {
+      return false;
+    } else if(typeof(ignoredDefinition) === 'boolean') {
+      return ignoredDefinition;
+    } else if(typeof(ignoredDefinition) === 'function') {
+      return ignoredDefinition(options.getState);
+    } else {
+      throw new Error('"ignored" definition is invalid');
+    }
+  };
+
+  proxyNode.required = function required() {
+    var requiredDefinition = options.schemaNode.required;
+    if(typeof(requiredDefinition) === 'undefined' || proxyNode.ignored()) {
+      return false;
+    } else if(typeof(requiredDefinition) === 'boolean') {
+      return requiredDefinition;
+    } else if(typeof(requiredDefinition) === 'function') {
+      return requiredDefinition(options.getState);
+    } else {
+      throw new Error('"required" definition is invalid');
+    }
+  };
 
   proxyNode.validate = function validate(ignoreChanges) {
     var retval = { isValid: true, validationMessage: '' };
-    var itemProxies = proxyNode.getItems();
-    for(var itemIndex = 0; itemIndex < itemProxies.length; itemIndex++) {
-      var validationResult = itemProxies[itemIndex].validate(ignoreChanges);
-      if(!validationResult.isValid) {
-        retval.invalidPropertyIndex = itemIndex;
-        retval.invalidPropertyResult = validationResult;
-        retval.isValid = false;
-        break;
+
+    var val = proxyNode.val();
+
+    var isEmpty = typeof(val) === 'undefined' || val === null || !val.length;
+    if(isEmpty && proxyNode.required()) {
+      retval.isValid = false;
+      retval.validationMessage = 'Required field';
+    } else {
+      var itemProxies = proxyNode.getItems();
+      for(var itemIndex = 0; itemIndex < itemProxies.length; itemIndex++) {
+        var validationResult = itemProxies[itemIndex].validate(ignoreChanges);
+        if(!validationResult.isValid) {
+          retval.invalidPropertyIndex = itemIndex;
+          retval.invalidPropertyResult = validationResult;
+          retval.isValid = false;
+          break;
+        }
       }
     }
     return retval;
