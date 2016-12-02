@@ -102,7 +102,8 @@ function createDynamicProxy(options) {
 
     var val = proxyNode.val();
 
-    var isEmpty = typeof(val) === 'undefined' || val === null || val === '' || val === [];
+    var isEmpty = typeof(val) === 'undefined' || val === null || val === '' ||
+      (val.constructor === Array && !val.length);
     if(isEmpty && proxyNode.required()) {
       retval.isValid = false;
       //retval.requiredValidationViolated = true;
