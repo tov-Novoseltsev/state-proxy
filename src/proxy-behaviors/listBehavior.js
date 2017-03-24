@@ -1,4 +1,5 @@
-var behaviorSelector = require('./behaviorSelector');
+var objectAssign = require('object-assign'),
+  behaviorSelector = require('./behaviorSelector');
 
 function find(arr, f) {
   for(var i = 0; i < arr.length; i++) {
@@ -15,7 +16,7 @@ function getDefaultState(schema) {
 }
 
 function constructState(schema, state, valOverride, otherOverrides) {
-  var retval = Object.assign({}, state || getDefaultState(schema));
+  var retval = objectAssign({}, state || getDefaultState(schema));
 
   if(typeof(valOverride) !== 'undefined'/* && typeof(schema.val) === 'undefined'*/) {
     var val = valOverride;
@@ -25,12 +26,12 @@ function constructState(schema, state, valOverride, otherOverrides) {
     var newState = val.map(function(item) {
       return behaviorSelector.constructState(schema.listItem, undefined, item, otherOverrides);
     });
-    Object.assign(retval, { val: newState });
+    objectAssign(retval, { val: newState });
   } else if(typeof(otherOverrides) !== 'undefined') {
     var newStateWithOtherOverrides = retval.val.map(function(subState) {
       return behaviorSelector.constructState(schema.listItem, subState, undefined, otherOverrides);
     });
-    Object.assign(retval, otherOverrides, { val: newStateWithOtherOverrides });
+    objectAssign(retval, otherOverrides, { val: newStateWithOtherOverrides });
   }
 
   return retval;

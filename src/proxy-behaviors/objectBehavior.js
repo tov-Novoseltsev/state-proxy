@@ -1,4 +1,5 @@
-var behaviorSelector = require('./behaviorSelector');
+var objectAssign = require('object-assign'),
+  behaviorSelector = require('./behaviorSelector');
 
 function forEachProperty(propertiesDefinitionObject, func) {
   var propertyNames = [];
@@ -25,7 +26,7 @@ function getDefaultState(schema) {
 
 function constructState(schema, stateArg, valOverride, otherOverrides) {
   var state = stateArg || getDefaultState(schema);
-  var retval = Object.assign({}, state);
+  var retval = objectAssign({}, state);
 
   if(typeof(valOverride) !== 'undefined' || typeof(otherOverrides) !== 'undefined') {
     var val = valOverride;
@@ -33,7 +34,7 @@ function constructState(schema, stateArg, valOverride, otherOverrides) {
       val = schema.setDataTransform(valOverride);
     }
 
-    Object.assign(retval, otherOverrides, { val: state.val });
+    objectAssign(retval, otherOverrides, { val: state.val });
 
     var valState = Object.create(null);
     forEachProperty(schema.properties, function(prop) {
@@ -45,7 +46,7 @@ function constructState(schema, stateArg, valOverride, otherOverrides) {
         childValOverride, otherOverrides);
     });
 
-    Object.assign(retval, { val: valState });
+    objectAssign(retval, { val: valState });
   }
 
   return retval;

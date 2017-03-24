@@ -1,3 +1,5 @@
+var objectAssign = require('object-assign');
+
 function getDefaultState(schema) {
   return {
     val: schema.default
@@ -6,10 +8,10 @@ function getDefaultState(schema) {
 
 function constructState(schema, state, valOverride, otherOverrides) {
   var s = state || getDefaultState(schema);
-  var retval = Object.assign({}, s);
+  var retval = objectAssign({}, s);
 
   if(typeof(otherOverrides) !== 'undefined') {
-    Object.assign(retval, otherOverrides, { val: s.val });
+    objectAssign(retval, otherOverrides, { val: s.val });
   }
 
   if(typeof(valOverride) !== 'undefined') {
@@ -19,7 +21,7 @@ function constructState(schema, state, valOverride, otherOverrides) {
       val = schema.setDataTransform(valOverride);
     }
 
-    Object.assign(retval, { val: val });
+    objectAssign(retval, { val: val });
   }
 
   return retval;

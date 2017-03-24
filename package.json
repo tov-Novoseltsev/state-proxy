@@ -1,6 +1,6 @@
 {
   "name": "state-proxy",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "Provides useful wrappers for your application's state",
   "main": "src/StateProxy.js",
   "repository": {
@@ -32,5 +32,8 @@
     "node-libs-browser": "^1.0.0",
     "phantomjs-prebuilt": "^2.1.12",
     "webpack": "^1.13.2"
+  },
+  "dependencies": {
+    "object-assign": "^4.1.1"
   }
 }
