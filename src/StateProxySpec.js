@@ -2,48 +2,48 @@
 
 var StateProxy = require('./StateProxy');
 
-describe('StateProxy', function() {
-  describe('dynamic type', function() {
+describe('StateProxy', function () {
+  describe('dynamic type', function () {
 
-    describe('val method', function() {
+    describe('val method', function () {
       var schema = {};
       var proxy = StateProxy.create(schema);
 
-      it('should be defined', function() {
+      it('should be defined', function () {
         expect(proxy.val).toBeDefined();
       });
-      it('should equal undefined by default', function() {
+      it('should equal undefined by default', function () {
         expect(proxy.val()).toBeUndefined();
       });
-      it('should return the same value as it was set to it', function() {
+      it('should return the same value as it was set to it', function () {
         proxy.val('TestVal');
         expect(proxy.val()).toBe('TestVal');
       });
 
-      describe('with default value in schema', function() {
+      describe('with default value in schema', function () {
         var schema = {
           default: 'defaultTest'
         };
         var proxy = StateProxy.create(schema);
 
-        it('should return value from schema by default', function() {
+        it('should return value from schema by default', function () {
           expect(proxy.val()).toBe('defaultTest');
         });
       });
 
-      describe('with calculated val function set in schema', function() {
+      describe('with calculated val function set in schema', function () {
         var schema = {
-          val: function(getState) {
+          val: function (getState) {
             return 'calculated';
           }
         };
         var proxy = StateProxy.create(schema);
 
-        it('should return calculated value', function() {
+        it('should return calculated value', function () {
           expect(proxy.val()).toBe('calculated');
         });
 
-        it('should ignore setting', function() {
+        it('should ignore setting', function () {
           proxy.val('settingTest');
           expect(proxy.val()).toBe('calculated');
         });
@@ -51,7 +51,7 @@ describe('StateProxy', function() {
     });
   });
 
-  describe('Full Schema', function() {
+  describe('Full Schema', function () {
     var personSchemaDefinition = {
       type: StateProxy.SchemaTypes.object,
       properties: {
@@ -96,12 +96,11 @@ describe('StateProxy', function() {
         Education: {
           type: StateProxy.SchemaTypes.dynamic
         },
-        Notes: {
-        }
+        Notes: {}
       }
     };
 
-    describe('Without getState and setState', function() {
+    describe('Without getState and setState', function () {
       var person = StateProxy.create(personSchemaDefinition);
 
       it('should have proper signature', function () {

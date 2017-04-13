@@ -15,15 +15,17 @@ gulp.task('clean', del.bind(null, [DEST]));
 
 gulp.task('default', ['build']);
 
-gulp.task('build', ['clean'], function(cb) {
+gulp.task('build', ['clean'], function (cb) {
   var config = require('./config/webpack.js')(RELEASE);
   var compiler = webpack(config);
-  compiler.run(function(err, stats) {
+  compiler.run(function (err, stats) {
     if (err) {
       console.log(err);
-        return;
+      return;
     }
-    console.log('[webpack]', stats.toString({colors: true}));
+    console.log('[webpack]', stats.toString({
+      colors: true
+    }));
     cb();
   });
 });

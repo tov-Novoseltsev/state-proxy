@@ -1,7 +1,7 @@
 function getBehavior(schema) {
   var behaviors = require('./Behaviors');
 
-  if(behaviors.hasOwnProperty(schema.type)) {
+  if (behaviors.hasOwnProperty(schema.type)) {
     var behavior = behaviors[schema.type];
     return behavior;
   } else {

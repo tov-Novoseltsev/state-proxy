@@ -2,13 +2,13 @@ var behaviorSelector = require('./proxy-behaviors/behaviorSelector');
 
 function provideDefaultStateStorage(proxyNode, options) {
   var internalState = {};
-  if(typeof options.getState === 'undefined') {
+  if (typeof options.getState === 'undefined') {
     internalState.state = proxyNode.getDefaultState();
     options.getState = function getState() {
       return internalState.state;
     };
   }
-  if(typeof options.setState === 'undefined') {
+  if (typeof options.setState === 'undefined') {
     options.setState = function setState(newState) {
       internalState.state = newState;
     };
@@ -36,8 +36,11 @@ function create(schemaNode, getState, setState) {
 }
 
 function formValidationResult(condition, validationMessage) {
-  var retval = { isValid: condition, validationMessage: '' };
-  if(!condition) {
+  var retval = {
+    isValid: condition,
+    validationMessage: ''
+  };
+  if (!condition) {
     retval.validationMessage = validationMessage;
   }
   return retval;
