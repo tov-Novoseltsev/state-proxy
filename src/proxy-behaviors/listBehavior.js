@@ -1,15 +1,15 @@
 var objectAssign = require('object-assign'),
   behaviorSelector = require('./behaviorSelector');
 
-function find(arr, f) {
-  for (var i = 0; i < arr.length; i++) {
-    if (f(arr[i])) {
-      return arr[i];
-    }
-  }
+// function find(arr, f) {
+//   for (var i = 0; i < arr.length; i++) {
+//     if (f(arr[i])) {
+//       return arr[i];
+//     }
+//   }
 
-  return undefined;
-}
+//   return undefined;
+// }
 
 function getDefaultState(schema) {
   return {
@@ -81,7 +81,7 @@ function constructProxyItem(options, itemState, index) {
 function createListProxy(options) {
   var proxyNode = Object.create(null);
 
-  proxyNode.getItems = function getItems(start, length) {
+  proxyNode.getItems = function getItems(/*start, length*/) {
     var state = options.getState();
     var retval = state.val.map(function (item, index) {
       return constructProxyItem(options, item, index);
