@@ -1,7 +1,5 @@
 'use strict';
 
-var webpackConfig = require('./webpack.js')(/* release */ false);
-
 module.exports = function (config) {
   config.set({
 

@@ -26,33 +26,30 @@ function getDefaultState(schema) {
   return defaultState;
 }
 
-function constructState(schema, stateArg, valOverride, otherOverrides) {
+function constructState(schema, stateArg, overrides) {
   var state = stateArg || getDefaultState(schema);
   var retval = objectAssign({}, state);
 
-  if (typeof (valOverride) !== 'undefined' || typeof (otherOverrides) !== 'undefined') {
-    var val = valOverride;
-    if (typeof (schema.setDataTransform) === 'function' && typeof (valOverride) !== 'undefined') {
-      val = schema.setDataTransform(valOverride);
+  if (typeof overrides !== 'undefined') {
+    objectAssign(retval, overrides);
+    if (typeof overrides.val !== 'undefined') {
+      if (typeof schema.setDataTransform === 'function') {
+        retval.val = schema.setDataTransform(retval.val);
+      }
+
+      var valState = Object.create(null);
+      forEachProperty(schema.properties, function (prop) {
+        var childSchema = schema.properties[prop];
+        var childState = state.val[prop];
+        var childOverrides = objectAssign({}, overrides, { val: retval.val[prop] });
+        if (!retval.val.hasOwnProperty(prop)) {
+          delete childOverrides.val;
+        }
+
+        valState[prop] = behaviorSelector.constructState(childSchema, childState, childOverrides);
+      });
+      retval.val = valState;
     }
-
-    objectAssign(retval, otherOverrides, {
-      val: state.val
-    });
-
-    var valState = Object.create(null);
-    forEachProperty(schema.properties, function (prop) {
-      var childValOverride = typeof (val) !== 'undefined' ?
-        val[prop] : undefined;
-      var childSchema = schema.properties[prop];
-      var childState = state.val[prop];
-      valState[prop] = behaviorSelector.constructState(childSchema, childState,
-        childValOverride, otherOverrides);
-    });
-
-    objectAssign(retval, {
-      val: valState
-    });
   }
 
   return retval;
@@ -113,7 +110,7 @@ function createObjectProxy(options) {
 
   proxyNode.getState = function getState(valOverride, otherOverrides) {
     var state = options.getState();
-    return constructState(options.schemaNode, state, valOverride, otherOverrides);
+    return constructState(options.schemaNode, state, objectAssign({}, otherOverrides, { val: valOverride }));
   };
 
   proxyNode.val = function val(newVal) {

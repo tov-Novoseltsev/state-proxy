@@ -24,9 +24,9 @@ function getDefaultState(schema) {
   return behavior.getDefaultState(schema);
 }
 
-function constructState(schema, state, valOverride, otherOverrides) {
+function constructState(schema, state, overrides) {
   var behavior = getBehavior(schema);
-  return behavior.constructState(schema, state, valOverride, otherOverrides);
+  return behavior.constructState(schema, state, overrides);
 }
 
 function deconstructState(schema, getState) {

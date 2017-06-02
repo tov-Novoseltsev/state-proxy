@@ -1,44 +1,53 @@
 var objectAssign = require('object-assign'),
   behaviorSelector = require('./behaviorSelector');
 
-// function find(arr, f) {
-//   for (var i = 0; i < arr.length; i++) {
-//     if (f(arr[i])) {
-//       return arr[i];
-//     }
-//   }
-
-//   return undefined;
-// }
-
 function getDefaultState(schema) {
   return {
     val: schema.default || []
   };
 }
 
-function constructState(schema, state, valOverride, otherOverrides) {
-  var retval = objectAssign({}, state || getDefaultState(schema));
+function constructState(schema, stateArg, overrides) {
+  var state = stateArg || getDefaultState(schema);
+  var retval = objectAssign({}, state);
 
-  if (typeof (valOverride) !== 'undefined' /* && typeof(schema.val) === 'undefined'*/ ) {
-    var val = valOverride;
-    if (typeof (schema.setDataTransform) === 'function') {
-      val = schema.setDataTransform(valOverride);
+  if (typeof overrides !== 'undefined') {
+    objectAssign(retval, overrides);
+    if (typeof overrides.val !== 'undefined') {
+      if (typeof schema.setDataTransform === 'function') {
+        retval.val = schema.setDataTransform(overrides.val);
+      }
+
+      retval.val = retval.val.map(function (item) {
+        var subOverrides = objectAssign({}, overrides, { val: item });
+        return behaviorSelector.constructState(schema.listItem, undefined, subOverrides);
+      });
+    } else {
+      retval.val = retval.val.map(function (subState) {
+        return behaviorSelector.constructState(schema.listItem, subState, overrides);
+      });
     }
-    var newState = val.map(function (item) {
-      return behaviorSelector.constructState(schema.listItem, undefined, item, otherOverrides);
-    });
-    objectAssign(retval, {
-      val: newState
-    });
-  } else if (typeof (otherOverrides) !== 'undefined') {
-    var newStateWithOtherOverrides = retval.val.map(function (subState) {
-      return behaviorSelector.constructState(schema.listItem, subState, undefined, otherOverrides);
-    });
-    objectAssign(retval, otherOverrides, {
-      val: newStateWithOtherOverrides
-    });
   }
+
+  // if (typeof (valOverride) !== 'undefined' /* && typeof(schema.val) === 'undefined'*/ ) {
+  //   var val = valOverride;
+  //   if (typeof (schema.setDataTransform) === 'function') {
+  //     val = schema.setDataTransform(valOverride);
+  //   }
+  //   var newState = val.map(function (item) {
+  //     return behaviorSelector.constructState(schema.listItem, undefined, item, otherOverrides);
+  //   });
+  //   objectAssign(retval, {
+  //     val: newState
+  //   });
+  // } else if (typeof (otherOverrides) !== 'undefined') {
+  //   var newStateWithOtherOverrides = retval.val.map(function (subState) {
+  //     return behaviorSelector.constructState(schema.listItem, subState, undefined, otherOverrides);
+  //   });
+  //   objectAssign(retval, otherOverrides, {
+  //     val: newStateWithOtherOverrides
+  //   });
+  // }
 
   return retval;
 }
@@ -93,7 +102,7 @@ function createListProxy(options) {
 
   proxyNode.getState = function getState(valOverride, otherOverrides) {
     var state = options.getState();
-    return constructState(options.schemaNode, state, valOverride, otherOverrides);
+    return constructState(options.schemaNode, state, objectAssign({}, otherOverrides, { val: valOverride }));
   };
 
   proxyNode.val = function val(newVal) {
@@ -107,16 +116,8 @@ function createListProxy(options) {
     }
 
     var newStateVal = newVal.map(function (item) {
-      var getState = null;
       // todo: implement deeper state construction
-      // if(options.schemaNode.listItem.type === 'object') {
-      //   getState = function() {
-      //     find(currentState, function(x) {
-      //       return x[idPropertyName] === item[idPropertyName];
-      //     });
-      //   };
-      // }
-      return behaviorSelector.constructState(options.schemaNode.listItem, getState, item);
+      return behaviorSelector.constructState(options.schemaNode.listItem, null, { val: item });
     });
 
     options.setState({

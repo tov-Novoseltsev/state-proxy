@@ -6,26 +6,15 @@ function getDefaultState(schema) {
   };
 }
 
-function constructState(schema, state, valOverride, otherOverrides) {
+function constructState(schema, state, overrides) {
   var s = state || getDefaultState(schema);
   var retval = objectAssign({}, s);
 
-  if (typeof otherOverrides !== 'undefined') {
-    objectAssign(retval, otherOverrides, {
-      val: s.val
-    });
-  }
-
-  if (typeof valOverride !== 'undefined') {
-    var val = valOverride;
-
-    if (typeof schema.setDataTransform === 'function') {
-      val = schema.setDataTransform(valOverride);
+  if (typeof overrides !== 'undefined') {
+    objectAssign(retval, overrides);
+    if (overrides.hasOwnProperty('val') && typeof schema.setDataTransform === 'function') {
+      retval.val = schema.setDataTransform(retval.val);
     }
-
-    objectAssign(retval, {
-      val: val
-    });
   }
 
   return retval;
@@ -55,11 +44,11 @@ function createDynamicProxy(options) {
 
   proxyNode.getState = function getState(valOverride, otherOverrides) {
     var state = options.getState();
-    return constructState(options.schemaNode, state, valOverride, otherOverrides);
+    return constructState(options.schemaNode, state, objectAssign({}, otherOverrides, { val: valOverride }));
   };
 
   proxyNode.val = function val(newVal) {
-    if (typeof newVal === 'undefined') {
+    if (arguments.length === 0) {
       if (typeof options.schemaNode.val !== 'undefined') {
         return options.schemaNode.val(options.getState);
       }

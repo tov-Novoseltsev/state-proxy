@@ -29,7 +29,7 @@ function create(schemaNode, getState, setState) {
   };
 
   rootProxy.setData = function setData(data) {
-    setState(behaviorSelector.constructState(schemaNode, getState(), data));
+    setState(behaviorSelector.constructState(schemaNode, getState(), { val: data }));
   };
 
   return provideDefaultStateStorage(rootProxy, rootOptions);

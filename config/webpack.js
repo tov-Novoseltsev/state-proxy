@@ -2,21 +2,22 @@
 
 var webpack = require('webpack');
 
-module.exports = function(release) {
+module.exports = function (release) {
   return {
-  	output: {
-  		path: './build/',
-  		filename: 'state-proxy.js',
+    output: {
+      path: './build/',
+      filename: 'state-proxy.js',
       library: 'StateProxy',
       libraryTarget: 'umd'
-  	},
-  	cache: !release,
+    },
+    cache: !release,
     debug: !release,
     entry: './src/StateProxy.js',
-    externals: {
-    },
+    externals: {},
     plugins: release ? [
-      new webpack.DefinePlugin({'process.env.NODE_ENV': '"production"'}),
+      new webpack.DefinePlugin({
+        'process.env.NODE_ENV': '"production"'
+      }),
       new webpack.optimize.DedupePlugin(),
       new webpack.optimize.UglifyJsPlugin(),
       new webpack.optimize.OccurenceOrderPlugin(),
@@ -26,13 +27,11 @@ module.exports = function(release) {
       extensions: ['', '.webpack.js', '.web.js', '.js']
     },
     module: {
-      preLoaders: [
-        {
-          test: /\.js$/,
-          exclude: /node_modules/,
-          loader: 'jshint'
-        }
-      ]
-  	}
+      preLoaders: [{
+        test: /\.js$/,
+        exclude: /node_modules/,
+        loader: 'jshint'
+      }]
+    }
   };
 };
