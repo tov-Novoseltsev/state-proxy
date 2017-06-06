@@ -42,9 +42,9 @@ function createDynamicProxy(options) {
 
   proxyNode.getDefaultState = getDefaultState.bind(null, options.schemaNode);
 
-  proxyNode.getState = function getState(valOverride, otherOverrides) {
+  proxyNode.getState = function getState(overrides) {
     var state = options.getState();
-    return constructState(options.schemaNode, state, objectAssign({}, otherOverrides, { val: valOverride }));
+    return constructState(options.schemaNode, state, overrides);
   };
 
   proxyNode.val = function val(newVal) {
@@ -55,7 +55,7 @@ function createDynamicProxy(options) {
       return options.getState().val;
     }
 
-    var state = proxyNode.getState(newVal);
+    var state = proxyNode.getState({ val: newVal });
     state.hasChanges = true;
     options.setState(state);
   };
@@ -122,9 +122,7 @@ function createDynamicProxy(options) {
   };
 
   proxyNode.exposeRequiredErrors = function exposeRequiredErrors() {
-    var state = proxyNode.getState(undefined, {
-      hasChanges: true
-    });
+    var state = proxyNode.getState({ hasChanges: true });
     options.setState(state);
   };
 

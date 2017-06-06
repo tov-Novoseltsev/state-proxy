@@ -108,9 +108,9 @@ function createObjectProxy(options) {
 
   proxyNode.getDefaultState = getDefaultState.bind(null, options.schemaNode);
 
-  proxyNode.getState = function getState(valOverride, otherOverrides) {
+  proxyNode.getState = function getState(overrides) {
     var state = options.getState();
-    return constructState(options.schemaNode, state, objectAssign({}, otherOverrides, { val: valOverride }));
+    return constructState(options.schemaNode, state, overrides);
   };
 
   proxyNode.val = function val(newVal) {
@@ -155,9 +155,7 @@ function createObjectProxy(options) {
   };
 
   proxyNode.exposeRequiredErrors = function exposeRequiredErrors() {
-    var state = proxyNode.getState(undefined, {
-      hasChanges: true
-    });
+    var state = proxyNode.getState({ hasChanges: true });
     options.setState(state);
   };
 

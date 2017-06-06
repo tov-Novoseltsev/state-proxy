@@ -100,9 +100,9 @@ function createListProxy(options) {
 
   proxyNode.getDefaultState = getDefaultState.bind(null, options.schemaNode);
 
-  proxyNode.getState = function getState(valOverride, otherOverrides) {
+  proxyNode.getState = function getState(overrides) {
     var state = options.getState();
-    return constructState(options.schemaNode, state, objectAssign({}, otherOverrides, { val: valOverride }));
+    return constructState(options.schemaNode, state, overrides);
   };
 
   proxyNode.val = function val(newVal) {
