@@ -49,6 +49,14 @@ function constructState(schema, stateArg, overrides) {
         valState[prop] = behaviorSelector.constructState(childSchema, childState, childOverrides);
       });
       retval.val = valState;
+    } else {
+      var valState = Object.create(null);
+      forEachProperty(schema.properties, function (prop) {
+        var childSchema = schema.properties[prop];
+        var childState = state.val[prop];
+        valState[prop] = behaviorSelector.constructState(childSchema, childState, overrides);
+      });
+      retval.val = valState;
     }
   }
 
