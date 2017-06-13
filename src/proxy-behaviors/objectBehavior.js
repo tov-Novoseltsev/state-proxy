@@ -32,12 +32,12 @@ function constructState(schema, stateArg, overrides) {
 
   if (typeof overrides !== 'undefined') {
     objectAssign(retval, overrides);
+    var valState = Object.create(null);
     if (typeof overrides.val !== 'undefined') {
       if (typeof schema.setDataTransform === 'function') {
         retval.val = schema.setDataTransform(retval.val);
       }
 
-      var valState = Object.create(null);
       forEachProperty(schema.properties, function (prop) {
         var childSchema = schema.properties[prop];
         var childState = state.val[prop];
@@ -48,16 +48,14 @@ function constructState(schema, stateArg, overrides) {
 
         valState[prop] = behaviorSelector.constructState(childSchema, childState, childOverrides);
       });
-      retval.val = valState;
     } else {
-      var valState = Object.create(null);
       forEachProperty(schema.properties, function (prop) {
         var childSchema = schema.properties[prop];
         var childState = state.val[prop];
         valState[prop] = behaviorSelector.constructState(childSchema, childState, overrides);
       });
-      retval.val = valState;
     }
+    retval.val = valState;
   }
 
   return retval;
