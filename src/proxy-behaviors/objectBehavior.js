@@ -135,7 +135,7 @@ function createObjectProxy(options) {
       return retval;
     }
 
-    var state = proxyNode.getState(newVal);
+    var state = proxyNode.getState({ val: newVal });
 
     state.hasChanges = true;
     options.setState(state);
