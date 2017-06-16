@@ -1,6 +1,6 @@
 {
   "name": "state-proxy",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "description": "Provides useful wrappers for your application's state",
   "main": "src/StateProxy.js",
   "repository": {
