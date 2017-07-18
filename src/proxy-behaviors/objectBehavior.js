@@ -15,7 +15,7 @@ function forEachProperty(propertiesDefinitionObject, func) {
 
 function getDefaultState(schema) {
   var defaultState = {
-    val: Object.create(null)
+    val: {}
   };
 
   forEachProperty(schema.properties, function (prop) {
@@ -32,7 +32,7 @@ function constructState(schema, stateArg, overrides) {
 
   if (typeof overrides !== 'undefined') {
     objectAssign(retval, overrides);
-    var valState = Object.create(null);
+    var valState = {};
     if (typeof overrides.val !== 'undefined') {
       if (typeof schema.setDataTransform === 'function') {
         retval.val = schema.setDataTransform(retval.val);
@@ -62,7 +62,7 @@ function constructState(schema, stateArg, overrides) {
 }
 
 function deconstructState(schema, getState) {
-  var retval = Object.create(null);
+  var retval = {};
 
   forEachProperty(schema.properties, function (prop) {
     var childSchema = schema.properties[prop];
@@ -81,7 +81,7 @@ function deconstructState(schema, getState) {
 }
 
 function constructSubOptions(propertyName, options) {
-  var retval = Object.create(null);
+  var retval = {};
   retval.schemaNode = options.schemaNode.properties[propertyName];
   retval.getState = function getState() {
     var state = options.getState() || {
@@ -99,7 +99,7 @@ function constructSubOptions(propertyName, options) {
 }
 
 function constructProxyProperties(options) {
-  var retval = Object.create(null);
+  var retval = {};
   forEachProperty(options.schemaNode.properties, function (prop) {
     var subOptions = constructSubOptions(prop, options);
     retval[prop] = behaviorSelector.create(subOptions);
@@ -108,7 +108,7 @@ function constructProxyProperties(options) {
 }
 
 function createObjectProxy(options) {
-  var proxyNode = Object.create(null);
+  var proxyNode = {};
 
   proxyNode.properties = constructProxyProperties(options);
 
@@ -128,7 +128,7 @@ function createObjectProxy(options) {
     }
 
     if (typeof (newVal) === 'undefined') {
-      var retval = Object.create(null);
+      var retval = {};
       forEachProperty(options.schemaNode.properties, function (prop) {
         retval[prop] = proxyNode.properties[prop].val();
       });
