@@ -105,7 +105,7 @@ function createDynamicProxy(options) {
     if (isEmpty && proxyNode.required()) {
       retval.isValid = false;
       //retval.requiredValidationViolated = true;
-      retval.validationMessage = 'Required field';
+      retval.validationMessage = options.schemaNode.requiredErrorMessage || 'Required field';
     } else {
       var validateDefinition = options.schemaNode.validate;
       if (typeof validateDefinition === 'function') {
