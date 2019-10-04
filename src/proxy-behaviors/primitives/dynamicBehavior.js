@@ -67,7 +67,7 @@ function createDynamicProxy(options) {
     } else if (typeof ignoredDefinition === 'boolean') {
       return ignoredDefinition;
     } else if (typeof ignoredDefinition === 'function') {
-      return ignoredDefinition(options.getState);
+      return ignoredDefinition(options.getState, function () { return proxyNode.val(); });
     } else {
       throw new Error('"ignored" definition is invalid');
     }
@@ -80,7 +80,7 @@ function createDynamicProxy(options) {
     } else if (typeof requiredDefinition === 'boolean') {
       return requiredDefinition;
     } else if (typeof requiredDefinition === 'function') {
-      return requiredDefinition(options.getState);
+      return requiredDefinition(options.getState, function () { return proxyNode.val(); });
     } else {
       throw new Error('"required" definition is invalid');
     }
@@ -109,7 +109,7 @@ function createDynamicProxy(options) {
     } else {
       var validateDefinition = options.schemaNode.validate;
       if (typeof validateDefinition === 'function') {
-        var validationResult = validateDefinition(options.getState, val);
+        var validationResult = validateDefinition(options.getState, function () { return val; });
         if (typeof validationResult === 'boolean') {
           retval.isValid = validationResult;
         } else {
