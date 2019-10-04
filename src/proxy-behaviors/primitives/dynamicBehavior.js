@@ -109,7 +109,7 @@ function createDynamicProxy(options) {
     } else {
       var validateDefinition = options.schemaNode.validate;
       if (typeof validateDefinition === 'function') {
-        var validationResult = validateDefinition(options.getState);
+        var validationResult = validateDefinition(options.getState, val);
         if (typeof validationResult === 'boolean') {
           retval.isValid = validationResult;
         } else {
