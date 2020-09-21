@@ -31,16 +31,18 @@ declare module 'state-proxy' {
     schema: () => { type: string, required: () => void; };
   }
 
+  interface ISchemaTypes {
+    dynamic: undefined;
+    bool: 'bool';
+    number: 'number';
+    string: 'string';
+    object: 'object';
+    list: 'list';
+  }
+
   interface IStateProxy {
     formValidationResult(validationResult: Boolean, validationMessage: string): IValidationResult;
-    SchemaTypes: {
-      dynamic: undefined;
-      bool: string;
-      number: string;
-      string: string;
-      object: string;
-      list: string;
-    };
+    SchemaTypes: ISchemaTypes;
     create(schema: Object, getState?: () => any, setState?: (newState: any) => void): IStateProxyInstance;
   }
 }
