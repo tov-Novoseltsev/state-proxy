@@ -9,18 +9,9 @@ declare module 'state-proxy' {
     getParentState: () => { val: any; };
   }
 
-  interface IStateProxyInstance {
-    val: (val?: any) => any;
-    properties: any;
-    getData: () => any;
-    setData: (data: any) => void;
-    getDefaultState: () => Object;
-    validate: (ignoreChanges?: Boolean) => IValidationResult;
-    exposeRequiredErrors: () => void;
-  }
-
   interface IStateProxyNode {
     getDefaultState: (overrides?) => { val: any; };
+    properties: any;
     getState: (overrides?) => { val: any; hasChanges: boolean; };
     val: (newVal?: any) => any;
     ignored: () => boolean;
@@ -29,6 +20,7 @@ declare module 'state-proxy' {
     exposeRequiredErrors: () => void;
     resetToDefault: () => void;
     schema: () => { type: string, required: () => void; };
+    setData: (data: any) => any;
   }
 
   interface ISchemaTypes {
@@ -43,6 +35,6 @@ declare module 'state-proxy' {
   interface IStateProxy {
     formValidationResult(validationResult: Boolean, validationMessage: string): IValidationResult;
     SchemaTypes: ISchemaTypes;
-    create(schema: Object, getState?: () => any, setState?: (newState: any) => void): IStateProxyInstance;
+    create(schema: Object, getState?: () => any, setState?: (newState: any) => void): IStateProxyNode;
   }
 }
