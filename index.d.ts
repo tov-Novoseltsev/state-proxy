@@ -21,6 +21,7 @@ declare module 'state-proxy' {
     resetToDefault: () => void;
     schema: () => { type: string, required: () => void; };
     setData: (data: any) => any;
+    getData: () => any;
   }
 
   interface ISchemaTypes {
