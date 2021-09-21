@@ -169,7 +169,7 @@ function createListProxy(options) {
     var val = proxyNode.val();
 
     var isEmpty = typeof (val) === 'undefined' || val === null || !val.length;
-    var required = typeof proxyNode.required() === 'object' ? proxyNode.required().required : proxyNode.required();
+    var required = typeof proxyNode.required() === 'object' ? proxyNode.required().isRequired : proxyNode.required();
     if (isEmpty && required) {
       retval.isValid = false;
       retval.validationMessage = proxyNode.required().validationMessage || 'Required field';
