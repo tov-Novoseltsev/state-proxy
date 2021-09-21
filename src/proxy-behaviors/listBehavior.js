@@ -169,9 +169,12 @@ function createListProxy(options) {
     var val = proxyNode.val();
 
     var isEmpty = typeof (val) === 'undefined' || val === null || !val.length;
-    if (isEmpty && proxyNode.required()) {
+    var required = typeof proxyNode.required() === 'object' ? proxyNode.required().required : proxyNode.required();
+    if (isEmpty && required) {
       retval.isValid = false;
-      retval.validationMessage = 'Required field';
+      retval.validationMessage = proxyNode.required().validationMessage || 'Required field';
+    } else if (proxyNode.schema.validate && typeof proxyNode.schema.validate === 'function') {
+      retval = proxyNode.schema.validate(options.getState)
     } else {
       var itemProxies = proxyNode.getItems();
       for (var itemIndex = 0; itemIndex < itemProxies.length; itemIndex++) {
