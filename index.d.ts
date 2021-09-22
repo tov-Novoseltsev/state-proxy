@@ -6,7 +6,7 @@ declare module 'state-proxy' {
 
   interface IGetState {
     (): { val: any; };
-    getParentState: () => { val: any; };
+    getParentState: IGetState;
   }
 
   interface IStateProxyNode {
