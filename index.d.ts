@@ -19,7 +19,7 @@ declare module 'state-proxy' {
     validate: (ignoreChanges?: Boolean) => IValidationResult;
     exposeRequiredErrors: () => void;
     resetToDefault: () => void;
-    schema: () => { type: string, required: () => void; };
+    schema: { type: string, required: () => void; maxLength?: number; };
     setData: (data: any) => any;
     getData: () => any;
   }
