@@ -161,7 +161,7 @@ function createObjectProxy(options) {
   };
 
   proxyNode.exposeRequiredErrors = function exposeRequiredErrors() {
-    var state = proxyNode.getState({ hasChanges: true });
+    var state = proxyNode.getState({ hasChanges: true, touched: true });
     options.setState(state);
   };
 

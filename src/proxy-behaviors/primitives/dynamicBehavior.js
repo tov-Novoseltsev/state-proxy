@@ -60,6 +60,14 @@ function createDynamicProxy(options) {
     options.setState(state);
   };
 
+  proxyNode.setTouched = function () {
+    var state = proxyNode.getState();
+    if (state.hasChanges) {
+      state.touched = true;
+      options.setState(state);
+    }
+  };
+
   proxyNode.ignored = function ignored() {
     var ignoredDefinition = options.schemaNode.ignored;
     if (typeof ignoredDefinition === 'undefined') {
@@ -122,7 +130,7 @@ function createDynamicProxy(options) {
   };
 
   proxyNode.exposeRequiredErrors = function exposeRequiredErrors() {
-    var state = proxyNode.getState({ hasChanges: true });
+    var state = proxyNode.getState({ hasChanges: true, touched: true });
     options.setState(state);
   };
 

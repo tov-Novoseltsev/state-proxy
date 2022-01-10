@@ -12,7 +12,8 @@ declare module 'state-proxy' {
   interface IStateProxyNode {
     getDefaultState: (overrides?) => { val: any; };
     properties: any;
-    getState: (overrides?) => { val: any; hasChanges: boolean; };
+    getState: (overrides?) => { val: any; hasChanges: boolean; touched?: boolean; };
+    setTouched: () => void;
     val: (newVal?: any) => any;
     ignored: () => boolean;
     required: () => boolean;
