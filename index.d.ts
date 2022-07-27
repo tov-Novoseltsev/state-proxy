@@ -10,7 +10,7 @@ declare module 'state-proxy' {
   }
 
   interface IStateProxyNode {
-    getDefaultState: (overrides?) => { val: any; };
+    getDefaultState: (overrides?) => IGetState;
     properties: any;
     getState: (overrides?) => { val: any; hasChanges: boolean; };
     val: (newVal?: any) => any;
