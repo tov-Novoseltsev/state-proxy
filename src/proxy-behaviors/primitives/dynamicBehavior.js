@@ -126,6 +126,11 @@ function createDynamicProxy(options) {
       }
     }
 
+    if(val === null && options.schemaNode.nullErrorMessage && typeof options.schemaNode.nullErrorMessage === 'string') {
+      retval.isValid = false;
+      retval.validationMessage = options.schemaNode.nullErrorMessage;
+    }
+
     return retval;
   };
 
