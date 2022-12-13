@@ -47,7 +47,7 @@ function createDynamicProxy(options) {
     return constructState(options.schemaNode, state, overrides);
   };
 
-  proxyNode.val = function val(newVal) {
+  proxyNode.val = function val(newVal, isTouched) {
     if (arguments.length === 0) {
       if (typeof options.schemaNode.val !== 'undefined') {
         return options.schemaNode.val(options.getState);
@@ -57,6 +57,9 @@ function createDynamicProxy(options) {
 
     var state = proxyNode.getState({ val: newVal });
     state.hasChanges = true;
+    if (isTouched) {
+      state.touched = true;
+    }
     options.setState(state);
   };
 
@@ -126,7 +129,7 @@ function createDynamicProxy(options) {
       }
     }
 
-    if(val === null && options.schemaNode.nullErrorMessage && typeof options.schemaNode.nullErrorMessage === 'string') {
+    if (val === null && options.schemaNode.nullErrorMessage && typeof options.schemaNode.nullErrorMessage === 'string') {
       retval.isValid = false;
       retval.validationMessage = options.schemaNode.nullErrorMessage;
     }

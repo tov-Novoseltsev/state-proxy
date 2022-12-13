@@ -119,7 +119,7 @@ function createObjectProxy(options) {
     return constructState(options.schemaNode, state, overrides);
   };
 
-  proxyNode.val = function val(newVal) {
+  proxyNode.val = function val(newVal, isTouched) {
     if (typeof options.schemaNode.val !== 'undefined') {
       if (typeof (newVal) !== 'undefined') {
         console.log('WARNING: Setting operation for calculated property is not allowed');
@@ -138,6 +138,9 @@ function createObjectProxy(options) {
     var state = proxyNode.getState({ val: newVal });
 
     state.hasChanges = true;
+    if(isTouched) {
+      state.touched = true;
+    }
     options.setState(state);
   };
 

@@ -13,7 +13,7 @@ export interface IStateProxyNode {
   properties: any;
   getState: (overrides?) => { val: any; hasChanges: boolean; touched?: boolean; };
   setTouched: () => void;
-  val: (newVal?: any) => any;
+  val: (newVal?: any, isTouched?: boolean) => any;
   ignored: () => boolean;
   required: () => boolean;
   validate: (ignoreChanges?: Boolean) => IValidationResult;
