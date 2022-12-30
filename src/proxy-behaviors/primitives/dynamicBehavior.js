@@ -40,6 +40,8 @@ function deconstructState(schema, getState) {
 function createDynamicProxy(options) {
   var proxyNode = Object.create(null);
 
+  proxyNode.validationCache = undefined;
+
   proxyNode.getDefaultState = getDefaultState.bind(null, options.schemaNode);
 
   proxyNode.getState = function getState(overrides) {
@@ -54,6 +56,8 @@ function createDynamicProxy(options) {
       }
       return options.getState().val;
     }
+    const val = proxyNode.val();
+    if (newVal === val) return;
 
     var state = proxyNode.getState({ val: newVal });
     state.hasChanges = true;
@@ -133,6 +137,9 @@ function createDynamicProxy(options) {
       retval.isValid = false;
       retval.validationMessage = options.schemaNode.nullErrorMessage;
     }
+
+    proxyNode.validationCache = retval;
+    options.getState.setValidationCache && options.getState.setValidationCache(retval);
 
     return retval;
   };

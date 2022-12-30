@@ -68,7 +68,7 @@ function deconstructState(schema, getState) {
   return retval;
 }
 
-function constructProxyItem(options, itemState, index) {
+function constructProxyItem(options, itemState, index, proxyNode) {
   var subOptions = Object.create(null);
 
   subOptions.schemaNode = options.schemaNode.listItem;
@@ -77,6 +77,11 @@ function constructProxyItem(options, itemState, index) {
     return state.val[index];
   };
   subOptions.getState.getParentState = options.getState;
+  subOptions.getState.setValidationCache = () => {
+    if (options.getState.setValidationCache) {
+      options.getState.setValidationCache(proxyNode.validationCache)
+    }
+  }
 
   subOptions.setState = function setState(newVal) {
     var state = options.getState();
@@ -90,10 +95,12 @@ function constructProxyItem(options, itemState, index) {
 function createListProxy(options) {
   var proxyNode = Object.create(null);
 
+  proxyNode.validationCache = [];
+
   proxyNode.getItems = function getItems(/*start, length*/) {
     var state = options.getState();
     var retval = state.val.map(function (item, index) {
-      return constructProxyItem(options, item, index);
+      return constructProxyItem(options, item, index, proxyNode);
     });
     return retval;
   };
@@ -117,10 +124,12 @@ function createListProxy(options) {
 
     var newStateVal = newVal.map(function (item) {
       // todo: implement deeper state construction
-      return behaviorSelector.constructState(options.schemaNode.listItem, null, { val: item });
+      return behaviorSelector.constructState(options.schemaNode.listItem, null, { val: item, hasChanges: true, touched: true });
     });
 
     options.setState({
+      hasChanges: true,
+      touched: true,
       val: newStateVal
     });
   };
@@ -163,7 +172,8 @@ function createListProxy(options) {
   proxyNode.validate = function validate(ignoreChanges) {
     var retval = {
       isValid: true,
-      validationMessage: ''
+      validationMessage: '',
+      invalidProperties: [],
     };
 
     var val = proxyNode.val();
@@ -180,12 +190,25 @@ function createListProxy(options) {
           retval.invalidPropertyIndex = itemIndex;
           retval.invalidPropertyResult = validationResult;
           retval.isValid = false;
-          break;
+          retval.invalidProperties.push(validationResult);
+          // break;
         }
       }
     }
+
+    proxyNode.validationCache = retval;
+    options.getState.setValidationCache && options.getState.setValidationCache(retval);
+
     return retval;
   };
+
+  proxyNode.exposeRequiredErrors = function exposeRequiredErrors() {
+    for (let prop of Object.values(proxyNode.getItems())) {
+      (prop.validate(true).isValid === false) && prop.exposeRequiredErrors && prop.exposeRequiredErrors();
+    }
+    const state = options.getState();
+    options.setState({ ...state, hasChanges: true, touched: true });
+  }
 
   return proxyNode;
 }

@@ -1,5 +1,5 @@
 export interface IValidationResult {
-  isValid: Boolean;
+  isValid: boolean;
   validationMessage?: string;
 }
 
@@ -8,10 +8,23 @@ export interface IGetState {
   getParentState: IGetState;
 }
 
+interface IStateProxySchema {
+  type?: keyof ISchemaTypes;
+  default?: any;
+  ignored?: boolean;
+  required?: boolean | (() => void);
+  maxLength?: number;
+  properties?: any;
+  validate?: () => IValidationResult;
+  listItem?: IStateProxySchema;
+  getDataTransform?: (data) => any;
+  setDataTransform?: <T>(data: T) => T;
+}
+
 export interface IStateProxyNode {
   getDefaultState: (overrides?) => IGetState;
   properties: any;
-  getState: (overrides?) => { val: any; hasChanges: boolean; touched?: boolean; };
+  getState: (overrides?) => { val: any; hasChanges?: boolean; touched?: boolean; };
   setTouched: () => void;
   val: (newVal?: any, isTouched?: boolean) => any;
   ignored: () => boolean;
@@ -19,9 +32,17 @@ export interface IStateProxyNode {
   validate: (ignoreChanges?: Boolean) => IValidationResult;
   exposeRequiredErrors: () => void;
   resetToDefault: () => void;
-  schema: { type: string, required: () => void; maxLength?: number; };
+  schema: IStateProxySchema;
   setData: (data: any) => any;
   getData: () => any;
+}
+
+export interface IStateProxyObjectNode extends IStateProxyNode {
+  validate: (ignoreChanges?: Boolean) => IValidationResult & { invalidProperties: { [key: string]: IValidationResult } };
+}
+
+export interface IStateProxyListNode extends IStateProxyNode {
+  getItems: () => IStateProxyNode[];
 }
 
 interface ISchemaTypes {
@@ -36,5 +57,5 @@ interface ISchemaTypes {
 export interface IStateProxy {
   formValidationResult(validationResult: Boolean, validationMessage: string): IValidationResult;
   SchemaTypes: ISchemaTypes;
-  create(schema: Object, getState?: () => any, setState?: (newState: any) => void): IStateProxyNode;
+  create(schema: IStateProxySchema, getState?: () => any, setState?: (newState: any) => void): IStateProxyNode;
 }

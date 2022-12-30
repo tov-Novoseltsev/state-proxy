@@ -80,7 +80,7 @@ function deconstructState(schema, getState) {
   return retval;
 }
 
-function constructSubOptions(propertyName, options) {
+function constructSubOptions(propertyName, options, proxyNode) {
   var retval = {};
   retval.schemaNode = options.schemaNode.properties[propertyName];
   retval.getState = function getState() {
@@ -90,6 +90,17 @@ function constructSubOptions(propertyName, options) {
     return state.val[propertyName];
   };
   retval.getState.getParentState = options.getState;
+  retval.getState.setValidationCache = (cache) => {
+    if (cache && cache.isValid === false) {
+      proxyNode.validationCache[propertyName] = cache;
+    } else {
+      delete proxyNode.validationCache[propertyName];
+    }
+
+    if (options.getState.setValidationCache) {
+      options.getState.setValidationCache(proxyNode.validationCache)
+    }
+  }
   retval.setState = function setState(newVal) {
     var state = options.getState();
     state.val[propertyName] = newVal;
@@ -98,19 +109,21 @@ function constructSubOptions(propertyName, options) {
   return retval;
 }
 
-function constructProxyProperties(options) {
+function constructProxyProperties(options, proxyNode) {
   var retval = {};
   forEachProperty(options.schemaNode.properties, function (prop) {
-    var subOptions = constructSubOptions(prop, options);
+    var subOptions = constructSubOptions(prop, options, proxyNode);
     retval[prop] = behaviorSelector.create(subOptions);
   });
   return retval;
 }
 
 function createObjectProxy(options) {
-  var proxyNode = {};
+  var proxyNode = {
+    validationCache: {}
+  };
 
-  proxyNode.properties = constructProxyProperties(options);
+  proxyNode.properties = constructProxyProperties(options, proxyNode);
 
   proxyNode.getDefaultState = getDefaultState.bind(null, options.schemaNode);
 
@@ -138,7 +151,7 @@ function createObjectProxy(options) {
     var state = proxyNode.getState({ val: newVal });
 
     state.hasChanges = true;
-    if(isTouched) {
+    if (isTouched) {
       state.touched = true;
     }
     options.setState(state);
@@ -150,22 +163,26 @@ function createObjectProxy(options) {
       validationMessage: ''
     };
 
-    forEachProperty(options.schemaNode.properties, function (prop) {
+    for (let prop in options.schemaNode.properties) {
       var validationResult = proxyNode.properties[prop].validate(ignoreChanges);
       if (!validationResult.isValid) {
-        retval.invalidPropertyName = prop;
-        retval.invalidPropertyResult = validationResult;
+        if (retval.invalidProperties === undefined) {
+          retval.invalidProperties = {};
+        }
+        retval.invalidProperties[prop] = validationResult;
         retval.isValid = false;
-        return true;
       }
-    });
+    }
 
     return retval;
   };
 
   proxyNode.exposeRequiredErrors = function exposeRequiredErrors() {
-    var state = proxyNode.getState({ hasChanges: true, touched: true });
-    options.setState(state);
+    for (let prop of Object.values(proxyNode.properties)) {
+      (prop.validate(true).isValid === false) && prop.exposeRequiredErrors && prop.exposeRequiredErrors();
+    }
+    var state = proxyNode.getState();
+    options.setState({ ...state, hasChanges: true, touched: true });
   };
 
   proxyNode.resetToDefault = function resetToDefault() {
