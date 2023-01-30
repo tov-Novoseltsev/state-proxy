@@ -57,7 +57,7 @@ function createDynamicProxy(options) {
       return options.getState().val;
     }
     const val = proxyNode.val();
-    if (newVal === val) return;
+    if (typeof val !== 'object' && newVal === val) return;
 
     var state = proxyNode.getState({ val: newVal });
     state.hasChanges = true;
